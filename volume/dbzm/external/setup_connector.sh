@@ -10,7 +10,7 @@ curl -i -X POST \
         "mongodb.hosts": "my_mongodb_1:27017",
         "mongodb.name": "my_mongo_cdc_01",
         "database.whitelist": "test_db_01",
-        "collection.whitelist": "test_coll_01",
+        "collection.whitelist": "test_db_01.test_coll_01",
         "key.converter.schemas.enable": false,
         "value.converter.schemas.enable": false,
         "key.converter": "org.apache.kafka.connect.json.JsonConverter",

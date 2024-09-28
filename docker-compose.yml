@@ -64,7 +64,7 @@ services:
       - my_zk
       - my_kafka_1
     volumes:
-      - ./dbzm_curls:/dbzm_curls
+      - ./volume/dbzm/external:/dbzm_curls
 
   my_schema_registry:
     image: confluentinc/cp-schema-registry:5.5.3
@@ -105,25 +105,60 @@ services:
   #     roles: [{"role": "readAnyDatabase", "db": "local"}]
   # })
 
+  
+
 
   my_mongodb_1:
-    image: mongo:4.2.3-bionic
+    image: mongo:8.0.0
     hostname: my_mongodb_1
     container_name: my_mongodb_1
-    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
+    command:
+      - /bin/sh
+      - -c
+      - |
+       chmod 400 /etc/mongodb.key
+       chown 999:999 /etc/mongodb.key
+       mongod --replSet rs0 --keyFile /etc/mongodb.key --bind_ip_all
+    # command: ["mongod", "--config", "/etc/mongod.conf"]
+    # command: ["mongod", "--replSet", "rs0", "--keyFile", "/etc/mongodb.key", "--config" ,"/etc/mongod.conf"]
+    # command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
+    # command: [mongod, --replSet, rs0, --keyFile, /etc/mongodb.key, --bind_ip_all, --port, "27017"]
+    # healthcheck:
+    #   test: test $$(mongosh --port 27017 --quiet --eval "try {rs.initiate({})} catch(e) {rs.status().ok}") -eq 1
+    #   interval: 10s
+    #   start_period: 30s
     ports:
       - 27017:27017
     extra_hosts:
       - "host.docker.internal:host-gateway"
     environment:
+      - MONGO_INITDB_DATABASE=admin
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=admin
     volumes:
-      - my_mongo_data:/data/db
-      - my_mongo_conf:/data/configdb
+      # - ./volume/mongo/internal/db:/data/db
+      # - ./volume/mongo/internal/configdb:/data/configdb
+      - ./volume/mongo/external/mongod.conf:/etc/mongod.conf
+      - ./volume/mongo/external/mongodb.key:/etc/mongodb.key
+
+
+  mongodb_setup:
+    image: mongo:8.0.0
+    container_name: mongodb_setup
+    hostname: mongodb_setup
+    restart: 'no'
+    command: >
+      mongosh --host my_mongodb_1:27017 -u admin -p admin --authenticationDatabase "admin"
+      '
+      rs.slaveOk();
+      rs.initiate();
+      '
+    depends_on:
+      - my_mongodb_1
+
 
   # my_mongodb_2:
-  #   image: mongo:4.2.3-bionic
+  #   image: mongo:8.0.0
   #   hostname: my_mongodb_2
   #   container_name: my_mongodb_2
   #   command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27018"]
@@ -145,17 +180,17 @@ services:
   #     - my_zk
   #     - my_kafka_1
 
-  kafka_ui:
-    container_name: kafka_ui
-    hostname: kafka_ui
-    image: provectuslabs/kafka-ui:latest
-    ports:
-      - 9100:8080
-    environment:
-      DYNAMIC_CONFIG_ENABLED: 'true'
-    depends_on:
-      - my_zk
-      - my_kafka_1
+  # kafka_ui:
+  #   container_name: kafka_ui
+  #   hostname: kafka_ui
+  #   image: provectuslabs/kafka-ui:latest
+  #   ports:
+  #     - 9100:8080
+  #   environment:
+  #     DYNAMIC_CONFIG_ENABLED: 'true'
+  #   depends_on:
+  #     - my_zk
+  #     - my_kafka_1
 
   # dbzm_ui:
   #   image: debezium/debezium-ui:latest
