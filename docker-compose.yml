@@ -36,6 +36,7 @@ services:
       # KAFKA_JMX_HOSTNAME: ${DOCKER_HOST_IP:-127.0.0.1}
       KAFKA_AUTHORIZER_CLASS_NAME: kafka.security.authorizer.AclAuthorizer
       KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "true"
+      TOPIC_AUTO_CREATE : "true"
     depends_on:
       - my_zk
     # volumes:
@@ -62,11 +63,13 @@ services:
     depends_on:
       - my_zk
       - my_kafka_1
+    volumes:
+      - ./dbzm_curls:/dbzm_curls
 
   my_schema_registry:
+    image: confluentinc/cp-schema-registry:5.5.3
     hostname: my_schema_registry
     container_name: my_schema_registry
-    image: confluentinc/cp-schema-registry:5.5.3
     environment:
       - SCHEMA_REGISTRY_HOST_NAME=my_schema_registry
       - SCHEMA_REGISTRY_LISTENERS=http://0.0.0.0:8081
@@ -77,6 +80,57 @@ services:
       - my_zk
       - my_kafka_1
       - my_dbzm
+
+
+  # COMPASS CONNECTION STRINGS
+  # auth + 2-node    : mongodb://admin:admin@my_mongodb_1:27017,my_mongodb_2:27018/?replicaSet=rs0
+  # no auth + 1-node : mongodb://my_mongodb_1:27017,my_mongodb_2:27018/?replicaSet=rs0
+  # no-auth + 1-node : mongodb://my_mongodb_1:27017/?replicaSet=rs0
+  # auth + 1-node    : mongodb://admin:admin@my_mongodb_1:27017/?replicaSet=rs0
+
+  # SHELL COMMANDS
+  # - with auth : mongo --port 27017 -u "admin" -p "admin" --authenticationDatabase "admin"
+  # - without auth : mongo
+
+  # MONGO SHELL COMMANDS
+  # rs.slaveOk()  -> start making quey
+  # rs.initiate() -> init rs
+  # use local     -> "oplog.rs" collection is inside "local" DB
+  # db.oplog.rs.find()  -> query "oplog.rs"
+
+  # random
+  # db.addUser({
+  #     user: 'my_oplog_user',
+  #     pwd: 'my_oplog_pass',
+  #     roles: [{"role": "readAnyDatabase", "db": "local"}]
+  # })
+
+
+  my_mongodb_1:
+    image: mongo:4.2.3-bionic
+    hostname: my_mongodb_1
+    container_name: my_mongodb_1
+    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
+    ports:
+      - 27017:27017
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=admin
+    volumes:
+      - my_mongo_data:/data/db
+      - my_mongo_conf:/data/configdb
+
+  # my_mongodb_2:
+  #   image: mongo:4.2.3-bionic
+  #   hostname: my_mongodb_2
+  #   container_name: my_mongodb_2
+  #   command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27018"]
+  #   ports:
+  #     - 27018:27018
+  #   extra_hosts:
+  #     - "host.docker.internal:host-gateway"
 
   # zoo_ui: 
   #   image: elkozmon/zoonavigator:latest
@@ -91,17 +145,17 @@ services:
   #     - my_zk
   #     - my_kafka_1
 
-  # kafka_ui:
-  #   container_name: kafka_ui
-  #   hostname: kafka_ui
-  #   image: provectuslabs/kafka-ui:latest
-  #   ports:
-  #     - 9100:8080
-  #   environment:
-  #     DYNAMIC_CONFIG_ENABLED: 'true'
-  #   depends_on:
-  #     - my_zk
-  #     - my_kafka_1
+  kafka_ui:
+    container_name: kafka_ui
+    hostname: kafka_ui
+    image: provectuslabs/kafka-ui:latest
+    ports:
+      - 9100:8080
+    environment:
+      DYNAMIC_CONFIG_ENABLED: 'true'
+    depends_on:
+      - my_zk
+      - my_kafka_1
 
   # dbzm_ui:
   #   image: debezium/debezium-ui:latest
@@ -114,3 +168,7 @@ services:
   #     - '8844:8080'
   #   environment:
   #     KAFKA_CONNECT_URIS: http://my_dbzm:8083
+
+volumes:
+  my_mongo_data:
+  my_mongo_conf:
