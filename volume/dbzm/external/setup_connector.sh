@@ -21,8 +21,7 @@ curl -i -X POST \
         "transforms.unwrap.operation.header": "true",
         "errors.tolerance": "all",
         "tombstones.on.delete" : "false",
-        "topic.prefix" : "mongo_cdc_topic",
-        "mongodb.connection.string": "mongodb://admin:admin@my_mongodb_1:27017/?replicaSet=rs0"
+        "topic.prefix" : "mongo_cdc_topic"
     }
 }'
 

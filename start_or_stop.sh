@@ -28,7 +28,6 @@ stop() {
 start_detach() {
     echo "detach mode"
     docker-compose up -d
-    sleep 3
 }
 
 
