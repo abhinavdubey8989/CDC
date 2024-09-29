@@ -22,15 +22,20 @@ stop() {
 }
 
 
-start_attach() {
-    echo "attach mode"
-    docker-compose up
-}
+
 
 
 start_detach() {
     echo "detach mode"
     docker-compose up -d
+    sleep 3
+}
+
+
+start_attach() {
+    start_detach
+    # echo "attach mode"
+    # docker-compose up
 }
 
 

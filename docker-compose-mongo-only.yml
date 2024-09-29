@@ -1,0 +1,82 @@
+
+
+services:
+
+  mongo_1:
+    hostname: mongo_1
+    container_name: mongo_1
+    image: mongo:8.0.0
+    ports:
+      - 27017:27017 
+    restart: "no"
+    command: mongod --replSet rs0
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+
+  # mongo_2:
+  #   hostname: mongo_2
+  #   container_name: mongo_2
+  #   image: mongo:8.0.0
+  #   ports:
+  #     - 27018:27018
+  #   restart: "no"
+  #   command: mongod --replSet rs0
+  #   extra_hosts:
+  #     - "host.docker.internal:host-gateway"
+
+
+  # mongo_3:
+  #   hostname: mongo_3
+  #   container_name: mongo_3
+  #   image: mongo:8.0.0
+  #   ports:
+  #     - 27019:27018
+  #   restart: "no"
+  #   command: mongod --replSet rs0
+  #   extra_hosts:
+  #     - "host.docker.internal:host-gateway"
+
+
+# finally, we can define the initialization server
+# this runs the `rs.initiate` command to intialize
+# the replica set and connect the three servers to each other
+# mongosh --port 27017 --quiet --eval "rs.initiate()" --json relaxed
+# docker compose exec mongo_1 mongosh --port 27017 --quiet --eval "rs.initiate()" --json relaxed
+# docker compose exec mongo_2 mongosh --port 27018 --quiet --eval "rs.initiate()" --json relaxed
+# docker compose exec mongo_3 mongosh --port 27019 --quiet --eval "rs.initiate()" --json relaxed
+
+
+  # mongo_init:
+  #   image: mongo:8.0.0
+  #   hostname: mongo_init
+  #   container_name: mongo_init
+  #   restart: "no"
+  #   depends_on:
+  #     - mongo_1
+  #     - mongo_2
+  #     - mongo_3
+  #   extra_hosts:
+  #     - "host.docker.internal:host-gateway"
+  #   command: >
+  #     mongosh mongodb://mongo_1:27017,mongo_2:27018,mongo_3:27019/?replicaSet=rs0
+  #     '
+  #     config = {
+  #     "_id" : "rs0",
+  #     "members" : [
+  #       {
+  #         "_id" : 0,
+  #         "host" : "mongo_1:27017"
+  #       },
+  #       {
+  #         "_id" : 1,
+  #         "host" : "mongo_2:27018"
+  #       },
+  #       {
+  #         "_id" : 2,
+  #         "host" : "mongo_3:27019"
+  #       }
+  #     ]
+  #     };
+  #     rs.initiate(config);
+  #     '

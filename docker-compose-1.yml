@@ -44,7 +44,7 @@ services:
     #   - ./volumns/kafka-1/stats.txt:/stats.txt
 
   my_dbzm:
-    image: 'debezium/connect'
+    image: 'debezium/connect:2.1.2.Final'
     hostname: my_dbzm
     container_name: my_dbzm
     ports:
