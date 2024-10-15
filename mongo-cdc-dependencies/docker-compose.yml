@@ -1,6 +1,7 @@
 version: '3'
 
 services:
+
   my_zk:
     image: confluentinc/cp-zookeeper:7.3.2
     hostname: my_zk
@@ -11,7 +12,6 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_SERVER_ID: 1
       ZOOKEEPER_SERVERS: my_zk:2888:3888
-
 
   my_kafka_1:
     image: confluentinc/cp-kafka:7.3.2
@@ -35,7 +35,6 @@ services:
       TOPIC_AUTO_CREATE : "true"
     depends_on:
       - my_zk
-
 
   my_dbzm:
     image: 'debezium/connect:2.1.2.Final'
@@ -75,30 +74,6 @@ services:
       - my_kafka_1
       - my_dbzm
 
-
-  # COMPASS CONNECTION STRINGS
-  # auth + 2-node    : mongodb://admin:admin@my_mongodb_1:27017,my_mongodb_2:27018/?replicaSet=rs0
-  # no auth + 1-node : mongodb://my_mongodb_1:27017,my_mongodb_2:27018/?replicaSet=rs0
-  # no-auth + 1-node : mongodb://my_mongodb_1:27017/?replicaSet=rs0
-  # auth + 1-node    : mongodb://admin:admin@my_mongodb_1:27017/?replicaSet=rs0
-
-  # SHELL COMMANDS
-  # - with auth : mongo --port 27017 -u "admin" -p "admin" --authenticationDatabase "admin"
-  # - without auth : mongo
-
-  # MONGO SHELL COMMANDS
-  # rs.slaveOk()  -> start making quey
-  # rs.initiate() -> init rs
-  # use local     -> "oplog.rs" collection is inside "local" DB
-  # db.oplog.rs.find()  -> query "oplog.rs"
-
-  # random
-  # db.addUser({
-  #     user: 'my_oplog_user',
-  #     pwd: 'my_oplog_pass',
-  #     roles: [{"role": "readAnyDatabase", "db": "local"}]
-  # })
-
   my_mongodb_1:
     image: mongo:8.0.0
     hostname: my_mongodb_1
@@ -109,7 +84,7 @@ services:
     command: mongod --replSet rs0
     extra_hosts:
       - "host.docker.internal:host-gateway"
-
+    
   # zoo_ui:
   #   image: elkozmon/zoonavigator:latest
   #   container_name: zoo_ui

@@ -22,7 +22,7 @@ export class KafkaConsumer {
             this.consumer = this.kafka.consumer({ groupId: consumerGroupId });
             this.kafkaAdmin = this.kafka.admin();
             this.kafkaAdmin.connect();
-            this.startConsuming(topics)
+            this.startConsuming(topics);
         } catch (e) {
             console.log(JSON.stringify(e));
             this.kafka = {} as any;
@@ -46,6 +46,7 @@ export class KafkaConsumer {
         }
     }
 
+    // each CDC event is handled in this fn
     private handleEvent(data: any) {
         const { topic, partition, message } = data;
         const msgString = message!.value!.toString();
