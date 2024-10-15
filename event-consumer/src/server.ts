@@ -1,8 +1,6 @@
 
-import express, { NextFunction, Request, Response } from 'express';
-const bodyParser = require('body-parser');
+import express from 'express';
 import { LogService } from './utils/logService';
-import { Ctx } from './utils/ctx';
 
 // load configs
 import { config } from 'dotenv';
@@ -17,7 +15,8 @@ const app = express();
 
 new KafkaConsumer(
     process.env.KAFKA_CONSUMER_GROUP_NAME!,
-    process.env.KAFKA_TOPICS!.split(','));
+    process.env.KAFKA_TOPICS!.split(',')
+);
 
 const logService = LogService.getInstance();
 
