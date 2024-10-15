@@ -39,7 +39,10 @@ export class KafkaConsumer {
         try {
             await this.consumer.subscribe({ topics, fromBeginning: true });
             await this.consumer.run({
-                eachMessage: async (data) => this.handleEvent(data)
+                eachMessage: async (data) => {
+                    console.log("received event");
+                    this.handleEvent(data)
+                }
             });
         } catch (e) {
             console.log(JSON.stringify(e));
@@ -48,22 +51,27 @@ export class KafkaConsumer {
 
     // each CDC event is handled in this fn
     private handleEvent(data: any) {
+        const logId = randomId(15, 'aA0');
         const { topic, partition, message } = data;
         const msgString = message!.value!.toString();
-        const msgObj = JSON.parse(msgString);
-        const afterObj = JSON.parse(msgObj.after);
 
-        console.log(afterObj);
-
-        const logId = randomId(15, 'aA0');
-
-        this.logService.info(
-            { logId },
-            JSON.stringify(afterObj));
+        if (topic === "mongo_cdc_topic.test_db_01.test_coll_01") {
+            const msgObj = JSON.parse(msgString);
+            const { before, after, op } = msgObj;
+            this.handleBeforeAfterPayload(logId, op, before, JSON.parse(after));
+        } else {
+            const msgObj = JSON.parse(msgString);
+            const { schema, payload } = msgObj;
+            const { before, after, op } = payload;
+            this.handleBeforeAfterPayload(logId, op, before, after);
+        }
     }
 
 
-    private sleep(timeInMillisec: number): Promise<void> {
-        return new Promise(resolve => setTimeout(resolve, timeInMillisec));
+    handleBeforeAfterPayload(logId: string, operration: string, beforeObj: any, afterObj: any) {
+        this.logService.info({ logId }, operration);
+        this.logService.info({ logId }, JSON.stringify(beforeObj));
+        this.logService.info({ logId }, JSON.stringify(afterObj));
     }
+
 }
