@@ -128,14 +128,14 @@ services:
   #     - my_zk
   #     - my_kafka_1
 
-  # dbzm_ui:
-  #   image: debezium/debezium-ui:latest
-  #   container_name: dbzm_ui
-  #   hostname: dbzm_ui
-  #   restart: 'no'
-  #   depends_on:
-  #    - my_dbzm
-  #   ports:
-  #     - '8844:8080'
-  #   environment:
-  #     KAFKA_CONNECT_URIS: http://my_dbzm:8083
+  dbzm_ui:
+    image: debezium/debezium-ui:latest
+    container_name: dbzm_ui
+    hostname: dbzm_ui
+    restart: 'no'
+    depends_on:
+     - my_dbzm
+    ports:
+      - '8844:8080'
+    environment:
+      KAFKA_CONNECT_URIS: http://my_dbzm:8083
