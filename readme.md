@@ -21,7 +21,8 @@
   - run : `./start_or_stop.sh 1`
 
 
-# Step-3 : Setup Postgres :
+# [DEPRECATED] Step-3 : Setup Postgres :
+  - [NOTE] : This step is now merged with starting the container
   - ssh : `docker exec  -it my_pg_1 /bin/bash`
   - connect to psql shell : `psql -h localhost -U root -d my_pg_db`
   - show databases : `\l`
@@ -32,7 +33,8 @@
   - insert row : `INSERT INTO students (name, marks) VALUES ('foo', 85.5);`
 
 
-# Step-4.1 : Setup mongo REPLICA-SET :
+# [DEPRECATED] Step-4.1 : Setup mongo REPLICA-SET :
+  - [NOTE] : This step is now merged with starting the container
   - once the containers are up, run the below on the hostmachine's terminal
   - `docker-compose exec my_mongodb_1 mongosh --port 27017 --quiet --eval "rs.initiate({})" --json relaxed`
   - if the above does not work, run the below in the terminal of mongo docker container
@@ -72,7 +74,8 @@
   }
 } -->
 
-# Step-4.2 : Setup a database & collection in mongoDB :
+# [DEPRECATED] Step-4.2 : Setup a database & collection in mongoDB :
+  - [NOTE] : This step is not needed now
   - go inside container : `docker exec  -it my_mongodb_1 /bin/bash`
   - connect to mongo-shell : `mongosh --port 27017`
   - create a db : `use test_db_01`
@@ -106,19 +109,21 @@
 
 # Step-8 : Subscribe to topic & start consuming in JS app :
   - Topic name follow the pattern :
-  - `{topic.prefix in setup-curl}.{mongo-database-name}.{collection-name}`
+  - `["topic.prefix" in setup-curl].[mongo-database-name].[collection-name]`
   - start the consumer app (a JS app/consumer here)
 
 
-# Step-9.1 : Do write operation in mongodb :
-  - go inside container : `docker exec  -it my_mongodb_1 /bin/bash`
-  - connect to mongo-shell : `mongosh --port 27017`
-  - switch to target db : `use test_db_01`
-  - insert a document : `db.test_coll_01.insertOne({name: 'example'})`
+# Step-9.1 : Write operation in mongodb :
+  - run the below from host machine's terminal
+  - `docker exec -it my_mongodb_1 mongosh --quiet --eval "db.getSiblingDB('test_db_01').test_coll_01.insertOne({name: 'n-1'})"`
+  - To check data in collection, run the below from host machine :
+  - `docker exec -it my_mongodb_1 mongosh --quiet --eval "db.getSiblingDB('test_db_01').test_coll_01.find().pretty()"`
 
 
 
-# Step-9.2 : Do write operation in PG :
-  - ssh : `docker exec  -it my_pg_1 /bin/bash`
-  - connect to psql shell : `psql -h localhost -U root -d my_pg_db`
-  - insert row : `INSERT INTO students (name, marks) VALUES ('foo', 85.5);`
+
+# Step-9.2 : Write operation in PG :
+  - run the below from host machine's terminal
+  - `docker exec -i my_pg_1 psql -U root -d my_pg_db -c "INSERT INTO students (name, marks) VALUES ('foo', 85);"`
+  - To check the data in table, run the below from host machine :
+  - `docker exec -i my_pg_1 psql -U root -d my_pg_db -c "SELECT * FROM students;"`

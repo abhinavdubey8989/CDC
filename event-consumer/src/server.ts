@@ -15,7 +15,7 @@ const app = express();
 
 new KafkaConsumer(
     process.env.KAFKA_CONSUMER_GROUP_NAME!,
-    process.env.KAFKA_TOPICS!.split(',')
+    [process.env.KAFKA_MONGO_CDC_TPC!, process.env.KAFKA_PG_CDC_TPC!]
 );
 
 const logService = LogService.getInstance();

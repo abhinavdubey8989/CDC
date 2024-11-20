@@ -55,15 +55,17 @@ export class KafkaConsumer {
         const { topic, partition, message } = data;
         const msgString = message!.value!.toString();
 
-        if (topic === "mongo_cdc_topic.test_db_01.test_coll_01") {
+        if (topic === process.env.KAFKA_MONGO_CDC_TPC!) {
             const msgObj = JSON.parse(msgString);
             const { before, after, op } = msgObj;
             this.handleBeforeAfterPayload(logId, op, before, JSON.parse(after));
+            console.log("handled mongo cdc event");
         } else {
             const msgObj = JSON.parse(msgString);
             const { schema, payload } = msgObj;
             const { before, after, op } = payload;
             this.handleBeforeAfterPayload(logId, op, before, after);
+            console.log("handled PG cdc event");
         }
     }
 
