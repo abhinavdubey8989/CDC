@@ -84,6 +84,8 @@ services:
     command: mongod --replSet rs0
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    volumes:
+      - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js
 
   my_pg_1:
     image: postgres:14.13
@@ -101,6 +103,9 @@ services:
                -c max_replication_slots=1
                -c wal_sender_timeout=0
                -c max_connections=300
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
     
   # zoo_ui:
   #   image: elkozmon/zoonavigator:latest

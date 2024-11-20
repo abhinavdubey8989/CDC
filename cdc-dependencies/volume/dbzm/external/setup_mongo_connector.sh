@@ -1,9 +1,7 @@
-
-
 curl -i -X POST \
--H "Accept:application/json" \
--H "Content-Type:application/json" localhost:8083/connectors \
--d '{
+    -H "Accept:application/json" \
+    -H "Content-Type:application/json" localhost:8083/connectors \
+    -d '{
     "name": "my_mongo_cdc_01",
     "config": {
         "connector.class": "io.debezium.connector.mongodb.MongoDbConnector",

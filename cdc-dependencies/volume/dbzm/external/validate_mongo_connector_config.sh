@@ -21,7 +21,6 @@ curl -X PUT http://localhost:8083/connector-plugins/MongoDbConnector/config/vali
         "topic.prefix" : "mongo_cdc_topic"
 }'
 
-
 echo
 echo
 
