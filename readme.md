@@ -115,7 +115,9 @@
 
 # Step-9.1 : Write operation in mongodb :
   - run the below from host machine's terminal
-  - `docker exec -it my_mongodb_1 mongosh --quiet --eval "db.getSiblingDB('test_db_01').test_coll_01.insertOne({name: 'n-1'})"`
+  - `docker exec -it my_mongodb_1 mongosh --quiet --eval "db.getSiblingDB('test_db_01').test_coll_01.insertOne({name: 'n-1',val:10})"`
+  - Update query
+  - `docker exec -it my_mongodb_1 mongosh --quiet --eval "db.getSiblingDB('test_db_01').test_coll_01.updateOne({name: 'n-1'},{\$set :{val:20}})"`
   - To check data in collection, run the below from host machine :
   - `docker exec -it my_mongodb_1 mongosh --quiet --eval "db.getSiblingDB('test_db_01').test_coll_01.find().pretty()"`
 
@@ -125,5 +127,7 @@
 # Step-9.2 : Write operation in PG :
   - run the below from host machine's terminal
   - `docker exec -i my_pg_1 psql -U root -d my_pg_db -c "INSERT INTO students (name, marks) VALUES ('foo', 85);"`
+  - Update query
+  - `docker exec -i my_pg_1 psql -U root -d my_pg_db -c "UPDATE students SET marks=1 WHERE name='foo';"`
   - To check the data in table, run the below from host machine :
   - `docker exec -i my_pg_1 psql -U root -d my_pg_db -c "SELECT * FROM students;"`
