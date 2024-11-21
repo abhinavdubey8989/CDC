@@ -47,8 +47,8 @@ services:
      - GROUP_ID=1
      - CONFIG_STORAGE_TOPIC=connect_configs
      - OFFSET_STORAGE_TOPIC=connect_offsets
-     - CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL=http://my_schema_registry:8081
-     - CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL=http://my_schema_registry:8081
+     - CONNECT_KEY_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+     - CONNECT_VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
      - CONNECT_CONFIG_STORAGE_TOPIC=delete
      - CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR=1
      - CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR=1
@@ -58,21 +58,6 @@ services:
       - my_kafka_1
     volumes:
       - ./volume/dbzm/external:/dbzm_curls
-
-  my_schema_registry:
-    image: confluentinc/cp-schema-registry:5.5.3
-    hostname: my_schema_registry
-    container_name: my_schema_registry
-    environment:
-      - SCHEMA_REGISTRY_HOST_NAME=my_schema_registry
-      - SCHEMA_REGISTRY_LISTENERS=http://0.0.0.0:8081
-      - SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS=PLAINTEXT://my_kafka_1:9092
-    ports:
-      - 8081:8081
-    depends_on:
-      - my_zk
-      - my_kafka_1
-      - my_dbzm
 
   my_mongodb_1:
     image: mongo:8.0.0
@@ -105,7 +90,6 @@ services:
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
-    
   # zoo_ui:
   #   image: elkozmon/zoonavigator:latest
   #   container_name: zoo_ui
