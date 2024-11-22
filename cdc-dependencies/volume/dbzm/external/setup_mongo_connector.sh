@@ -11,7 +11,8 @@ curl -i -X POST \
         "collection.whitelist": "test_db_01.test_coll_01",
         "errors.tolerance": "all",
         "tombstones.on.delete" : "true",
-        "topic.prefix" : "mongo_cdc_topic"
+        "topic.prefix" : "mongo_cdc_topic",
+        "capture.mode": "change_streams_update_full_with_pre_image"
     }
 }'
 

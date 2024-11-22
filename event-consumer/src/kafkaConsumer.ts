@@ -83,9 +83,10 @@ export class KafkaConsumer {
     handleMassagedEvent(details: MassagedCDCDetails) {
         const logId = details.logId;
         this.logService.info({ logId }, details.connector);
-        this.logService.info({ logId }, details.operation);
-        this.logService.info({ logId }, JSON.stringify(details.before));
-        this.logService.info({ logId }, JSON.stringify(details.after));
+        this.logService.info({ logId }, `operation=[${JSON.stringify(details.operation)}]`);
+        this.logService.info({ logId }, `before=[${JSON.stringify(details.before)}]`);
+        this.logService.info({ logId }, `after=[${JSON.stringify(details.after)}]`);
+        this.logService.info({ logId }, `==============`);
     }
 
 }
