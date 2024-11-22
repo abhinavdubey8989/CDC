@@ -9,16 +9,8 @@ curl -i -X POST \
         "mongodb.name": "my_mongo_cdc_01",
         "database.whitelist": "test_db_01",
         "collection.whitelist": "test_db_01.test_coll_01",
-        "key.converter.schemas.enable": false,
-        "value.converter.schemas.enable": false,
-        "key.converter": "org.apache.kafka.connect.json.JsonConverter",
-        "value.converter": "org.apache.kafka.connect.json.JsonConverter",
-        "transforms.unwrap.type": "io.debezium.connector.mongodb.transforms.UnwrapFromMongoDbEnvelope",
-        "transforms.unwrap.drop.tombstones": "false",
-        "transforms.unwrap.delete.handling.mode": "drop",
-        "transforms.unwrap.operation.header": "true",
         "errors.tolerance": "all",
-        "tombstones.on.delete" : "false",
+        "tombstones.on.delete" : "true",
         "topic.prefix" : "mongo_cdc_topic"
     }
 }'

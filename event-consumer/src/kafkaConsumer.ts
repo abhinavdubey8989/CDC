@@ -4,6 +4,15 @@ import { Kafka, Consumer, Admin } from 'kafkajs';
 import { LogService } from './utils/logService';
 const randomId = require('random-id');
 
+interface MassagedCDCDetails {
+    logId: string;
+    topic: string;
+    connector: string,
+    operation: string,
+    before: any,
+    after: any
+}
+
 export class KafkaConsumer {
 
     private kafka: Kafka;
@@ -52,28 +61,31 @@ export class KafkaConsumer {
     // each CDC event is handled in this fn
     private handleEvent(data: any) {
         const logId = randomId(15, 'aA0');
-        const { topic, partition, message } = data;
-        const msgString = message!.value!.toString();
-
-        if (topic === process.env.KAFKA_MONGO_CDC_TPC!) {
+        try {
+            const { topic, message } = data;
+            const msgString = message!.value!.toString();
             const msgObj = JSON.parse(msgString);
-            const { before, after, op } = msgObj;
-            this.handleBeforeAfterPayload(logId, op, before, JSON.parse(after));
-            console.log("handled mongo cdc event");
-        } else {
-            const msgObj = JSON.parse(msgString);
-            const { schema, payload } = msgObj;
-            const { before, after, op } = payload;
-            this.handleBeforeAfterPayload(logId, op, before, after);
-            console.log("handled PG cdc event");
+            console.log(`handling [${msgObj.payload.source.connector}] event`);
+            this.handleMassagedEvent({
+                logId,
+                topic,
+                before: msgObj.payload.before,
+                after: msgObj.payload.after,
+                connector: msgObj.payload.source.connector,
+                operation: msgObj.payload.op
+            });
+        } catch (e) {
+            this.logService.info({ logId }, `error while handling event: ${JSON.stringify(e)}`);
         }
     }
 
 
-    handleBeforeAfterPayload(logId: string, operration: string, beforeObj: any, afterObj: any) {
-        this.logService.info({ logId }, operration);
-        this.logService.info({ logId }, JSON.stringify(beforeObj));
-        this.logService.info({ logId }, JSON.stringify(afterObj));
+    handleMassagedEvent(details: MassagedCDCDetails) {
+        const logId = details.logId;
+        this.logService.info({ logId }, details.connector);
+        this.logService.info({ logId }, details.operation);
+        this.logService.info({ logId }, JSON.stringify(details.before));
+        this.logService.info({ logId }, JSON.stringify(details.after));
     }
 
 }
