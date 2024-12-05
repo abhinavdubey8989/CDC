@@ -11,12 +11,7 @@ curl -i -X POST \
         "database.user": "root",
         "database.password": "root",
         "database.dbname": "my_pg_db",
-        "database.server.name": "dbserver1",
-        "slot.name": "debezium_slot",
         "plugin.name": "pgoutput",
-        "publication.name": "dbz_publication",
-        "database.history.kafka.bootstrap.servers": "my_kafka_1:9092",
-        "database.history.kafka.topic": "pg_cdc_topic",
         "topic.prefix" : "pg_cdc_topic"
     }
 }'
